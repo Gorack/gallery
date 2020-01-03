@@ -1,0 +1,9 @@
+.gallery-container {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.gallery-item {
+	width: 20%;
+	cursor: pointer;
+}
