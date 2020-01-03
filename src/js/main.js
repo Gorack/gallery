@@ -1,14 +1,16 @@
-var galleryConfig = require('src/js/config');
-var GalleryManager = require('src/js/manager');
-require('src/scss/main.js.scss');
+var galleryConfig = require('./config');
+var GalleryManager = require('./manager');
+require('../scss/main.js.scss');
 
 function GalleryInit(config) {
 
 	config = config || {};
 
-	config = Object.assign(galleryConfig, config);
+	config = Object.assign(galleryConfig.config, config);
 
 	this.galleryManager = new GalleryManager(config);
 }
 
-new GalleryInit();
+(function () {
+	console.log(new GalleryInit());
+})();

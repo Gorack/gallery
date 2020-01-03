@@ -1,38 +1,42 @@
-/* === dont forget to import scss to main.js file === */
-/* ===> import './main.scss'; <=== */
-
-var path = require("path");
+const path = require('path');
+const webpack = require('webpack');
+const TerserJSPlugin = require('terser-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 module.exports = {
-	entry: "./src/js/main.js",
+	entry: './src/js/main.js',
 	output: {
-		path: path.resolve(__dirname, "dist"),
-		filename: "gallery.bundle.js",
-		publicPath: "/dist"
+		filename: 'main.js',
+		path: path.resolve(__dirname, 'dist/js'),
 	},
 	module: {
 		rules: [
 			{
-				test: /\.js$/,
-				use: {
-					loader: "babel-loader",
-					options: {presets: ["es2015"]}
-				}
-			},
-			{
-				test: /\.scss$/,
+				test: /\.s[ac]ss$/i,
 				use: [
 					{
-						loader: "style-loader" // creates style nodes from JS strings
+						loader: MiniCssExtractPlugin.loader,
+						options: {}
 					},
-					{
-						loader: "css-loader" // translates CSS into CommonJS
-					},
-					{
-						loader: "sass-loader" // compiles Sass to CSS
-					}
-				]
-			}
-		]
-	}
+					"css-loader",
+					"sass-loader",
+				],
+			},
+		],
+	},
+	optimization: {
+		minimizer: [new TerserJSPlugin({}), new OptimizeCSSAssetsPlugin({})],
+	},
+	plugins: [
+		new webpack.SourceMapDevToolPlugin({
+			filename: '[file].map'
+		}),
+		new MiniCssExtractPlugin({
+			// Options similar to the same options in webpackOptions.output
+			// both options are optional
+			filename: '../css/[name].css',
+			chunkFilename: '../css/[id].css',
+		}),
+	],
 };

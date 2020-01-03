@@ -1,4 +1,4 @@
-var Gallery = require('src/js/gallery');
+var Gallery = require('./gallery');
 
 function GalleryManager(config) {
 	this.config = config;

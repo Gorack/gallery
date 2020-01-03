@@ -1,3 +1,5 @@
+const Functions = require('./functions');
+
 function Gallery(containerElement, config) {
 	this.containerElement = containerElement;
 
@@ -56,7 +58,7 @@ Gallery.prototype = {
 		this.removeLightBoxElement();
 
 		var self = this;
-		var lightboxElement = galleryCore.toHtml(this.config.lightboxTemplate);
+		var lightboxElement = Functions.toHtml(this.config.lightboxTemplate);
 
 		this.activeItem = startItem;
 
