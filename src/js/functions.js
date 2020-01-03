@@ -16,5 +16,25 @@ module.exports = {
 		tmp.remove();
 
 		return element;
+	},
+
+	/**
+	 * Convert gallery item element to lightbox item
+	 *
+	 * @param {HTMLElement} item
+	 * @param {Object} config
+	 * @return {HTMLElement}
+	 */
+	galleryItemToLightBoxItem: function (item, config) {
+		var data = item._gallery;
+		var element = item.cloneNode(true);
+
+		element.classList.remove(config.itemSelector.replace('.', ''));
+
+		element.classList.add(config.prefix + 'lightbox-item');
+
+		element._gallery = data;
+
+		return element;
 	}
 };

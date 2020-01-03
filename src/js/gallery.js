@@ -41,10 +41,16 @@ Gallery.prototype = {
 		var self = this;
 
 		this.items.forEach(function (itemElement, index) {
-			itemElement._galleryIndex = index;
+			itemElement._gallery = {
+				index: index
+			};
 
 			itemElement.addEventListener('click', function (e) {
-				self.createLightBox(this);
+				try {
+					self.createLightBox(this);
+				} catch (e) {
+					console.warn(e);
+				}
 			})
 		});
 	},
@@ -59,33 +65,53 @@ Gallery.prototype = {
 
 		var self = this;
 		var lightboxElement = Functions.toHtml(this.config.lightboxTemplate);
+		var startItemIndex = startItem._gallery.index;
 
-		this.activeItem = startItem;
+		startItem = Functions.galleryItemToLightBoxItem(startItem, this.config);
 
-		lightboxElement.querySelector('.lightbox-backdrop').addEventListener('click', function (e) {
+		lightboxElement.querySelector('.' + self.config.prefix + 'lightbox-backdrop').addEventListener('click', function (e) {
 			self.removeLightBoxElement();
 		});
 
-		lightboxElement.querySelector('.lightbox-navigation__back a').addEventListener('click', function (e) {
+		lightboxElement.querySelector('.' + self.config.prefix + 'lightbox-navigation__back a').addEventListener('click', function (e) {
 			e.preventDefault();
 
 			self.lightboxNavigation('prev');
 		});
 
-		lightboxElement.querySelector('.lightbox-navigation__next a').addEventListener('click', function (e) {
+		lightboxElement.querySelector('.' + self.config.prefix + 'lightbox-navigation__next a').addEventListener('click', function (e) {
 			e.preventDefault();
 
 			self.lightboxNavigation('next');
 		});
 
-		lightboxElement.querySelector('.lightbox-container').append(startItem.cloneNode(true));
+		startItem.classList.add(this.config.activeClassName);
 
-		lightboxElement.querySelector('.lightbox-container').firstChild.classList.add('active');
+		startItem.addEventListener('click', function (e) {
+			self._lightboxItemClickEvent.call(this, self, e);
+		});
 
+		this.activeItem = startItem;
+
+		var lightboxContainer = lightboxElement.querySelector(this.config.lightboxContainerSelector);
+		var prevItem = this._findPrevLightboxItem();
+		var nextItem = this._findNextLightboxItem();
+
+		if (prevItem) {
+			lightboxContainer.append(prevItem);
+		}
+
+		lightboxContainer.append(startItem);
+
+		if (nextItem) {
+			lightboxContainer.append(nextItem);
+		}
+
+		// ADD LIGHTBOX ELEMENT TO DOM
 		document.body.append(lightboxElement);
 
 		setTimeout(function () {
-			lightboxElement.classList.add('active');
+			lightboxElement.classList.add(self.config.activeClassName);
 		}, 0);
 	},
 
@@ -95,8 +121,8 @@ Gallery.prototype = {
 	removeLightBoxElement: function () {
 		var self = this;
 
-		document.querySelectorAll('.lightbox-wrapper').forEach(function (element) {
-			element.classList.remove('active');
+		document.querySelectorAll('.' + this.config.prefix + 'lightbox-wrapper').forEach(function (element) {
+			element.classList.remove(self.config.activeClassName);
 
 			setTimeout(function () {
 				element.remove();
@@ -107,37 +133,133 @@ Gallery.prototype = {
 	lightboxNavigation: function (direction) {
 		direction = direction || 'next';
 
-		var activeItemIndex = this.activeItem._galleryIndex;
-		var targetItemIndex = (direction === 'next') ? (activeItemIndex + 1) : (activeItemIndex - 1);
-		var lightboxContainer = document.querySelector('.lightbox-container');
-		var nextItem;
+		var lightboxContainer = document.querySelector(this.config.lightboxContainerSelector);
+		var prevItem = document.querySelector(this.config.lightboxItemSelector + this.config.prevItemSelector);
+		var nextItem = document.querySelector(this.config.lightboxItemSelector + this.config.nextItemSelector);
+		var activeItem = document.querySelector(this.config.lightboxItemSelector + this.config.activeItemSelector);
 
-		if (targetItemIndex in this.items) {
-			nextItem = this.items[targetItemIndex];
-		} else {
+		switch (direction) {
+			case 'next':
 
-			if (this.config.infinityLightbox) {
-				nextItem = (direction !== 'next') ? this.items[this.items.length - 1] : this.items[0];
-			} else {
-				return;
-			}
+				activeItem.classList.remove(this.config.activeClassName);
+				activeItem.classList.add(this.config.prevItemClassName);
+
+				nextItem.classList.remove(this.config.nextItemClassName);
+				nextItem.classList.add(this.config.activeClassName);
+
+				prevItem.remove();
+
+				this.activeItem = nextItem;
+
+				var newNextItem = this._findNextLightboxItem();
+
+				if (newNextItem) {
+					lightboxContainer.append(newNextItem);
+				}
+
+				break;
+
+			case 'prev':
+
+				activeItem.classList.remove(this.config.activeClassName);
+				activeItem.classList.add(this.config.nextItemClassName);
+
+				prevItem.classList.remove(this.config.prevItemClassName);
+				prevItem.classList.add(this.config.activeClassName);
+
+				nextItem.remove();
+
+				this.activeItem = prevItem;
+
+				var newPrevItem = this._findPrevLightboxItem();
+
+				if (newPrevItem) {
+					lightboxContainer.insertBefore(newPrevItem, lightboxContainer.firstChild);
+				}
+
+				break;
+		}
+	},
+
+	/**
+	 * Find prev lightbox item
+	 *
+	 * @return {null}
+	 * @private
+	 */
+	_findPrevLightboxItem: function () {
+		var startItemIndex = this.activeItem._gallery.index;
+		var lastItemIndex = this.items.length - 1;
+		var prevItemIndex = startItemIndex - 1;
+		var prevItem = null;
+		var self = this;
+
+		if (prevItemIndex < 0 && this.config.infinityLightbox) {
+			prevItemIndex = lastItemIndex;
 		}
 
-		this.activeItem = nextItem;
+		if (prevItemIndex > -1) {
+			prevItem = Functions.galleryItemToLightBoxItem(this.items[prevItemIndex], this.config);
+			prevItem.classList.add(this.config.prevItemClassName);
 
-		lightboxContainer.firstChild.classList.remove('active');
+			prevItem.addEventListener('click', function (e) {
+				self._lightboxItemClickEvent.call(this, self, e);
+			});
+		}
 
-		setTimeout(function () {
+		return prevItem;
+	},
 
-			lightboxContainer.firstChild.remove();
+	/**
+	 * Find next lightbox item
+	 *
+	 * @return {null}
+	 * @private
+	 */
+	_findNextLightboxItem: function () {
+		var startItemIndex = this.activeItem._gallery.index;
+		var lastItemIndex = this.items.length - 1;
+		var nextItemIndex = startItemIndex + 1;
+		var nextItem = null;
+		var self = this;
 
-			lightboxContainer.append(nextItem.cloneNode(true));
+		if (nextItemIndex > lastItemIndex && this.config.infinityLightbox) {
+			nextItemIndex = 0;
+		}
 
-			setTimeout(function () {
-				lightboxContainer.firstChild.classList.add('active');
-			}, 1000/60);
+		if (nextItemIndex <= lastItemIndex) {
+			nextItem = Functions.galleryItemToLightBoxItem(this.items[nextItemIndex], this.config);
+			nextItem.classList.add(this.config.nextItemClassName);
 
-		}, this.config.lightboxAnimationDurationMS);
+			nextItem.addEventListener('click', function (e) {
+				self._lightboxItemClickEvent.call(this, self, e);
+			});
+		}
+
+		return nextItem;
+	},
+
+	/**
+	 * Lightbox item click event
+	 *
+	 * @param {Gallery} self
+	 * @param {MouseEvent} event
+	 * @private
+	 */
+	_lightboxItemClickEvent: function (self, event) {
+		var navDirection = null;
+
+		if (this.classList.contains(self.config.prevItemClassName)) {
+			navDirection = 'prev';
+		}
+
+		if (this.classList.contains(self.config.nextItemClassName)) {
+			navDirection = 'next';
+		}
+
+		if (navDirection) {
+			self.lightboxNavigation(navDirection);
+		}
 	}
 };
 

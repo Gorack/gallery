@@ -8,9 +8,11 @@ function GalleryInit(config) {
 
 	config = Object.assign(galleryConfig.config, config);
 
+	config = Object.assign(config, galleryConfig.privateConfig);
+
 	this.galleryManager = new GalleryManager(config);
 }
 
 (function () {
-	console.log(new GalleryInit());
+	new GalleryInit();
 })();
