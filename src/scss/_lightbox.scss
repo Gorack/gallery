@@ -83,4 +83,12 @@
         pointer-events: none;
         touch-action: none;
     }
+
+    &lightbox-tooltip {
+        position: absolute;
+        left: 50%;
+        bottom: 5%;
+        transform: translateX(-50%);
+        color: white;
+    }
 }

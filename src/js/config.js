@@ -7,6 +7,7 @@ GalleryConfig.prototype = {
 	config: {
 		lightboxAnimationDurationMS: 300,
 		infinityLightbox: true,
+		showTooltip: true,
 	},
 
 	privateConfig: {
@@ -26,6 +27,10 @@ GalleryConfig.prototype = {
 
 		get lightboxItemClassName() {
 			return this.prefix + 'lightbox-item';
+		},
+
+		get lightboxTooltipClassName() {
+			return this.prefix + 'lightbox-tooltip';
 		},
 
 		// selectors
@@ -57,6 +62,10 @@ GalleryConfig.prototype = {
 			return '.' + this.lightboxItemClassName;
 		},
 
+		get lightboxTooltipSelector() {
+			return '.' + this.lightboxTooltipClassName;
+		},
+
 		// templates
 		get lightboxTemplate() {
 			return '<div class="' + this.prefix + 'lightbox-wrapper">' +
@@ -70,6 +79,7 @@ GalleryConfig.prototype = {
 				'			<a href="#"><i class="fa fa-arrow-right"></i></a>' +
 				'		</div>' +
 				'	</div>' +
+				'	<div class="' + this.lightboxTooltipClassName + '"></div>' +
 				'</div>';
 		},
 	}

@@ -10,9 +10,19 @@ function Gallery(containerElement, config) {
 
 Gallery.prototype = {
 
+	_activeItem: null,
+
 	config: {},
 
-	activeItem: null,
+	get activeItem() {
+		return this._activeItem;
+	},
+
+	set activeItem(value) {
+		this._activeItem = value;
+
+		this._insertTooltipContent(this._activeItem._gallery.tooltip);
+	},
 
 	/**
 	 * @type {HTMLElement}
@@ -42,15 +52,12 @@ Gallery.prototype = {
 
 		this.items.forEach(function (itemElement, index) {
 			itemElement._gallery = {
-				index: index
+				index: index,
+				tooltip: self._getItemTitle(itemElement)
 			};
 
 			itemElement.addEventListener('click', function (e) {
-				try {
-					self.createLightBox(this);
-				} catch (e) {
-					console.warn(e);
-				}
+				self.createLightBox(this);
 			})
 		});
 	},
@@ -65,7 +72,6 @@ Gallery.prototype = {
 
 		var self = this;
 		var lightboxElement = Functions.toHtml(this.config.lightboxTemplate);
-		var startItemIndex = startItem._gallery.index;
 
 		startItem = Functions.galleryItemToLightBoxItem(startItem, this.config);
 
@@ -84,6 +90,11 @@ Gallery.prototype = {
 
 			self.lightboxNavigation('next');
 		});
+
+		this._insertTooltipContent(
+			this._getItemTitle(startItem),
+			lightboxElement.querySelector(this.config.lightboxTooltipSelector)
+		);
 
 		startItem.classList.add(this.config.activeClassName);
 
@@ -260,6 +271,39 @@ Gallery.prototype = {
 		if (navDirection) {
 			self.lightboxNavigation(navDirection);
 		}
+	},
+
+	/**
+	 * Insert lightbox tooltip content
+	 *
+	 * @param html
+	 * @param lightboxTooltipElement
+	 * @private
+	 */
+	_insertTooltipContent: function (html, lightboxTooltipElement) {
+
+		if (!this.config.showTooltip) {
+			return;
+		}
+
+		if (!lightboxTooltipElement) {
+			lightboxTooltipElement = document.querySelector(this.config.lightboxTooltipSelector);
+		}
+
+		if (lightboxTooltipElement && html) {
+			lightboxTooltipElement.innerHTML = html;
+		}
+	},
+
+	/**
+	 * Get gallery item data-title value
+	 *
+	 * @param {HTMLElement} item
+	 * @return {string}
+	 * @private
+	 */
+	_getItemTitle: function (item) {
+		return ('title' in item.dataset) ? item.dataset.title : null;
 	}
 };
 
