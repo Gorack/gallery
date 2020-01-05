@@ -51,18 +51,18 @@
         touch-action: auto;
         opacity: .2;
         transform: translate(0, -50%);
-        transition: all .3s linear;
+        transition: left .3s linear, opacity .5s linear, transform .3s linear;
 
         &.#{$prefix}prev-gallery-item {
             left: 0;
         }
 
         &.#{$prefix}next-gallery-item {
-            right: 0;
+            left: 100%;
+            transform: translate(-100%, -50%);
         }
 
         &.#{$prefix}active {
-            top: 50%;
             left: 50%;
             max-height: 80%;
             transform: translate(-50%, -50%);
