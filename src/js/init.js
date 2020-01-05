@@ -13,6 +13,6 @@ function GalleryInit(config) {
 	this.galleryManager = new GalleryManager(config);
 }
 
-(function () {
-	new GalleryInit();
-})();
+window.GalleryInit = GalleryInit;
+
+module.exports = GalleryInit;

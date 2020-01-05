@@ -9,8 +9,8 @@
 	<script src="https://kit.fontawesome.com/e50bf0678a.js" crossorigin="anonymous"></script>
 </head>
 <body>
-	<div class="grck-gallery-container">
-		<img class="grck-gallery-item" src="./img/01.png" alt="01">
+	<div class="grck-gallery-container grck-gallery-container--album">
+		<img class="grck-gallery-item grck-gallery-item--cover" src="./img/01.png" alt="01">
 		<img class="grck-gallery-item" src="./img/02.png" alt="02">
 		<img class="grck-gallery-item" src="./img/03.png" alt="03">
 		<img class="grck-gallery-item" src="./img/04.png" alt="04">
@@ -18,7 +18,10 @@
 		<img class="grck-gallery-item" src="./img/06.png" alt="06">
 		<img class="grck-gallery-item" src="./img/07.png" alt="07">
 		<img class="grck-gallery-item" src="./img/08.png" alt="08">
-		<img class="grck-gallery-item" src="./img/09.png" alt="09">
+	</div>
+
+	<div class="grck-gallery-container grck-gallery-container--album">
+		<img class="grck-gallery-item grck-gallery-item--cover" src="./img/09.png" alt="09">
 		<img class="grck-gallery-item" src="./img/10.png" alt="10">
 		<img class="grck-gallery-item" src="./img/11.png" alt="11">
 		<img class="grck-gallery-item" src="./img/12.png" alt="12">
@@ -30,6 +33,9 @@
 		<img class="grck-gallery-item" src="./img/18.png" alt="18">
 	</div>
 
-	<script src="../dist/js/main.js"></script>
+	<script src="../dist/js/gallery.bundle.js"></script>
+	<script>
+		new GalleryInit();
+	</script>
 </body>
 </html>
