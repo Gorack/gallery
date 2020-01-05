@@ -8,6 +8,9 @@ GalleryConfig.prototype = {
 		lightboxAnimationDurationMS: 300,
 		infinityLightbox: true,
 		showTooltip: true,
+		showIndex: true,
+		closeOnClickBackdrop: true,
+		closeOnEsc: true
 	},
 
 	privateConfig: {
@@ -31,6 +34,14 @@ GalleryConfig.prototype = {
 
 		get lightboxTooltipClassName() {
 			return this.prefix + 'lightbox-tooltip';
+		},
+
+		get lightboxIndexClassName() {
+			return this.prefix + 'lightbox-index';
+		},
+
+		get lightboxCloseClassName() {
+			return this.prefix + 'lightbox-close';
 		},
 
 		// selectors
@@ -66,21 +77,34 @@ GalleryConfig.prototype = {
 			return '.' + this.lightboxTooltipClassName;
 		},
 
+		get lightboxIndexSelector() {
+			return '.' + this.lightboxIndexClassName;
+		},
+
+		get lightboxCloseSelector() {
+			return '.' + this.lightboxCloseClassName;
+		},
+
 		// templates
 		get lightboxTemplate() {
-			return '<div class="' + this.prefix + 'lightbox-wrapper">' +
-				'	<div class="' + this.prefix + 'lightbox-backdrop"></div>' +
-				'	<div class="' + this.prefix + 'lightbox-container"></div>' +
-				'	<div class="' + this.prefix + 'lightbox-navigation">' +
-				'		<div class="' + this.prefix + 'lightbox-navigation__back">' +
-				'			<a href="#"><i class="fa fa-arrow-left"></i></a>' +
-				'		</div>' +
-				'		<div class="' + this.prefix + 'lightbox-navigation__next">' +
-				'			<a href="#"><i class="fa fa-arrow-right"></i></a>' +
-				'		</div>' +
-				'	</div>' +
-				'	<div class="' + this.lightboxTooltipClassName + '"></div>' +
-				'</div>';
+			// tabindex allow keyboard events on the element
+			return '<div class="' + this.prefix + 'lightbox-wrapper" tabindex="0">' +
+					'	<div class="' + this.prefix + 'lightbox-backdrop"></div>' +
+					'	<div class="' + this.prefix + 'lightbox-container"></div>' +
+					'	<div class="' + this.prefix + 'lightbox-navigation">' +
+					'		<div class="' + this.prefix + 'lightbox-navigation__back">' +
+					'			<a href="#"><i class="fa fa-arrow-left"></i></a>' +
+					'		</div>' +
+					'		<div class="' + this.prefix + 'lightbox-navigation__next">' +
+					'			<a href="#"><i class="fa fa-arrow-right"></i></a>' +
+					'		</div>' +
+					'	</div>' +
+					'	<div class="' + this.lightboxCloseClassName + '">' +
+					'		<a href="#"><i class="fa fa-close"></i></a>' +
+					'	</div>' +
+					'	<div class="' + this.lightboxIndexClassName + '"></div>' +
+					'	<div class="' + this.lightboxTooltipClassName + '"></div>' +
+					'</div>';
 		},
 	}
 

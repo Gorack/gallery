@@ -3,6 +3,8 @@ const Functions = require('./functions');
 function Gallery(containerElement, config) {
 	this.containerElement = containerElement;
 
+	containerElement.gallery = this.public;
+
 	this.config = config;
 
 	this.init();
@@ -22,6 +24,7 @@ Gallery.prototype = {
 		this._activeItem = value;
 
 		this._insertTooltipContent(this._activeItem._gallery.tooltip);
+		this._insertLightboxIndex();
 	},
 
 	/**
@@ -33,6 +36,20 @@ Gallery.prototype = {
 	 * @type {NodeListOf<Element>}
 	 */
 	items: null,
+
+	get public() {
+		var self = this;
+
+		return {
+			nextItem: function () {
+				self.lightboxNavigation('next');
+			},
+
+			prevItem: function () {
+				self.lightboxNavigation('prev');
+			}
+		};
+	},
 
 	/**
 	 * Gallery init
@@ -75,9 +92,19 @@ Gallery.prototype = {
 
 		startItem = Functions.galleryItemToLightBoxItem(startItem, this.config);
 
-		lightboxElement.querySelector('.' + self.config.prefix + 'lightbox-backdrop').addEventListener('click', function (e) {
-			self.removeLightBoxElement();
-		});
+		if (this.config.closeOnClickBackdrop) {
+			lightboxElement.querySelector('.' + self.config.prefix + 'lightbox-backdrop').addEventListener('click', function (e) {
+				self.removeLightBoxElement();
+			});
+		}
+
+		if (this.config.closeOnEsc) {
+			lightboxElement.addEventListener('keyup', function (e) {
+				if (e.key === 'Escape') {
+					self.removeLightBoxElement();
+				}
+			});
+		}
 
 		lightboxElement.querySelector('.' + self.config.prefix + 'lightbox-navigation__back a').addEventListener('click', function (e) {
 			e.preventDefault();
@@ -91,9 +118,20 @@ Gallery.prototype = {
 			self.lightboxNavigation('next');
 		});
 
+		// close lightbox by click on close icon
+		lightboxElement.querySelector(self.config.lightboxCloseSelector).addEventListener('click', function () {
+			self.removeLightBoxElement();
+		});
+
+		this.activeItem = startItem;
+
 		this._insertTooltipContent(
 			this._getItemTitle(startItem),
 			lightboxElement.querySelector(this.config.lightboxTooltipSelector)
+		);
+
+		this._insertLightboxIndex(
+			lightboxElement.querySelector(this.config.lightboxIndexSelector)
 		);
 
 		startItem.classList.add(this.config.activeClassName);
@@ -101,8 +139,6 @@ Gallery.prototype = {
 		startItem.addEventListener('click', function (e) {
 			self._lightboxItemClickEvent.call(this, self, e);
 		});
-
-		this.activeItem = startItem;
 
 		var lightboxContainer = lightboxElement.querySelector(this.config.lightboxContainerSelector);
 		var prevItem = this._findPrevLightboxItem();
@@ -120,6 +156,8 @@ Gallery.prototype = {
 
 		// ADD LIGHTBOX ELEMENT TO DOM
 		document.body.append(lightboxElement);
+
+		lightboxElement.focus();
 
 		setTimeout(function () {
 			lightboxElement.classList.add(self.config.activeClassName);
@@ -149,8 +187,16 @@ Gallery.prototype = {
 		var nextItem = document.querySelector(this.config.lightboxItemSelector + this.config.nextItemSelector);
 		var activeItem = document.querySelector(this.config.lightboxItemSelector + this.config.activeItemSelector);
 
+		if (!lightboxContainer || !activeItem) {
+			return;
+		}
+
 		switch (direction) {
 			case 'next':
+
+				if (!nextItem) {
+					break;
+				}
 
 				activeItem.classList.remove(this.config.activeClassName);
 				activeItem.classList.add(this.config.prevItemClassName);
@@ -158,7 +204,9 @@ Gallery.prototype = {
 				nextItem.classList.remove(this.config.nextItemClassName);
 				nextItem.classList.add(this.config.activeClassName);
 
-				prevItem.remove();
+				if (prevItem) {
+					prevItem.remove();
+				}
 
 				this.activeItem = nextItem;
 
@@ -172,13 +220,19 @@ Gallery.prototype = {
 
 			case 'prev':
 
+				if (!prevItem) {
+					break;
+				}
+
 				activeItem.classList.remove(this.config.activeClassName);
 				activeItem.classList.add(this.config.nextItemClassName);
 
 				prevItem.classList.remove(this.config.prevItemClassName);
 				prevItem.classList.add(this.config.activeClassName);
 
-				nextItem.remove();
+				if (nextItem) {
+					nextItem.remove();
+				}
 
 				this.activeItem = prevItem;
 
@@ -292,6 +346,25 @@ Gallery.prototype = {
 
 		if (lightboxTooltipElement && html) {
 			lightboxTooltipElement.innerHTML = html;
+		}
+	},
+
+	/**
+	 * Insert lightbox index content
+	 *
+	 * @param lightboxIndexElement
+	 * @private
+	 */
+	_insertLightboxIndex: function (lightboxIndexElement) {
+		if (!lightboxIndexElement) {
+			lightboxIndexElement = document.querySelector(this.config.lightboxIndexSelector);
+		}
+
+		var currentIndex = this.activeItem._gallery.index + 1;
+		var total = this.items.length;
+
+		if (lightboxIndexElement && this.config.showIndex) {
+			lightboxIndexElement.innerHTML = currentIndex + ' / ' + total;
 		}
 	},
 

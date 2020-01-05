@@ -84,11 +84,29 @@
         touch-action: none;
     }
 
-    &lightbox-tooltip {
+    &lightbox-tooltip,
+    &lightbox-index {
         position: absolute;
         left: 50%;
         bottom: 5%;
         transform: translateX(-50%);
         color: white;
+    }
+
+    &lightbox-index {
+        bottom: unset;
+        top: 5%;
+    }
+
+    &lightbox-close {
+        position: absolute;
+        top: 5%;
+        right: 5%;
+        cursor: pointer;
+
+        &,
+        & * {
+            color: white;
+        }
     }
 }

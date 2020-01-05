@@ -35,7 +35,11 @@
 
 	<script src="../dist/js/gallery.bundle.js"></script>
 	<script>
-		new GalleryInit();
+		new GalleryInit({
+			infinityLightbox: false,
+			closeOnClickBackdrop: false,
+			closeOnEsc: false
+		});
 	</script>
 </body>
 </html>
