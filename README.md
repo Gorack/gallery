@@ -14,7 +14,7 @@ Include CSS and Javascript files.
 	<body>
 	    ...
 	    
-	    <script  src="../dist/js/gallery.bundle.js"></script>
+	    <script  src="dist/js/gallery.bundle.js"></script>
     </body>
 
 
